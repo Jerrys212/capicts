@@ -1,4 +1,4 @@
-import axios from "axios";
+import { isAxiosError } from "axios";
 import api from "../lib/axios";
 import { User, UserLoginForm, UserRegisterForm, userSchema } from "../interfaces";
 
@@ -8,10 +8,8 @@ export const register = async (formData: UserRegisterForm) => {
 
         return data.message;
     } catch (error) {
-        let errorMessage = "Error al iniciar sesión";
-
-        if (axios.isAxiosError(error) && error.response) {
-            errorMessage = error.response.data.message || errorMessage;
+        if (isAxiosError(error) && error.response) {
+            throw error;
         }
     }
 };
@@ -26,10 +24,8 @@ export const login = async (formData: UserLoginForm) => {
             return result.data;
         }
     } catch (error) {
-        let errorMessage = "Error al iniciar sesión";
-
-        if (axios.isAxiosError(error) && error.response) {
-            errorMessage = error.response.data.message || errorMessage;
+        if (isAxiosError(error) && error.response) {
+            throw error;
         }
     }
 };

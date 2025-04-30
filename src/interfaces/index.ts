@@ -89,9 +89,23 @@ export const loanSchema = z.object({
     cantidadSemanal: z.number(),
     interes: z.number().default(5),
     totalPagar: z.number(),
+    pagos: z.array(
+        z.object({
+            semana: z.number(),
+            pagado: z.boolean(),
+            fechaPago: z.null(),
+            cantidad: z.number(),
+        })
+    ),
+    resumen: z.object({
+        pagadoHastaAhora: z.number(),
+        semanasRestantes: z.number(),
+        montoRestante: z.number(),
+        progresoPago: z.number(),
+    }),
     estado: z.enum(["pendiente", "aprobado", "rechazado", "pagado"]).default("pendiente"),
-    createdAt: z.string().optional(), // ISO string
-    updatedAt: z.string().optional(),
+    createdAt: z.string(), // ISO string
+    updatedAt: z.string(),
 });
 
 export interface Loan extends z.infer<typeof loanSchema> {}

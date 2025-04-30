@@ -1,4 +1,4 @@
-import { EyeIcon, TrashIcon, PlusIcon } from "@heroicons/react/20/solid";
+import { EyeIcon, PlusIcon, CheckIcon, XMarkIcon, CurrencyDollarIcon } from "@heroicons/react/20/solid";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppStore } from "../../stores/useAppStore";
@@ -7,12 +7,13 @@ import PulseSpinner from "../../components/Spinner";
 import { formatCurrency } from "../../helpers";
 import AddLoanModal from "../../components/loans/AddLoanModal";
 import LoanDetailModal from "../../components/loans/LoanDetailModal";
+import toast from "react-hot-toast";
+import LoanPaymentModal from "../../components/loans/LoanPaymentModal";
 
 const Loans = () => {
-    const { getLoans, isLoading, loans, deleteLoan } = useAppStore();
+    const { getLoans, isLoading, loans, updateLoanStatus } = useAppStore();
     const navigate = useNavigate();
 
-    // Efecto para cargar los datos cuando el componente se monta
     useEffect(() => {
         const loadLoans = async () => {
             try {
@@ -24,14 +25,10 @@ const Loans = () => {
         loadLoans();
     }, []);
 
-    // Estado para la paginación
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
-    // Calcular el total de páginas
     const totalPages = Math.ceil(loans.length / itemsPerPage);
-
-    // Obtener los elementos para la página actual
     const getCurrentItems = () => {
         if (loans) {
             const indexOfLastItem = currentPage * itemsPerPage;
@@ -40,10 +37,8 @@ const Loans = () => {
         }
     };
 
-    // Elementos actuales a mostrar
     const currentItems = getCurrentItems();
 
-    // Funciones para cambiar de página
     const goToNextPage = () => {
         if (currentPage < totalPages) {
             setCurrentPage(currentPage + 1);
@@ -56,8 +51,32 @@ const Loans = () => {
         }
     };
 
-    const handleDelete = async (_id: Loan["_id"]) => {
-        await deleteLoan(_id);
+    const handleApprove = async (_id: Loan["_id"]) => {
+        const response = confirm("Desea Aprobar Este Prestamo?");
+
+        if (response) {
+            const success = await updateLoanStatus(_id, "aprobado");
+
+            if (success) {
+                toast.success(success);
+            }
+        }
+    };
+
+    const handleReject = async (_id: Loan["_id"]) => {
+        const response = confirm("Desea Rechazar Este Prestamo?");
+
+        if (response) {
+            const success = await await updateLoanStatus(_id, "rechazado");
+
+            if (success) {
+                toast.success(success);
+            }
+        }
+    };
+
+    const handleOpenPaymentModal = (_id: Loan["_id"]) => {
+        navigate(location.pathname + `?paymentModal=${_id}`);
     };
 
     if (isLoading) return <PulseSpinner />;
@@ -67,16 +86,8 @@ const Loans = () => {
             <div className="w-full">
                 <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
                     <h2 className="text-2xl font-bold text-gray-800 mb-3 sm:mb-0">Préstamos</h2>
-                    <button
-                        onClick={() => navigate(location.pathname + "?AddLoan=true")}
-                        className="bg-green-700 hover:bg-green-800 text-white py-2 px-4 rounded-md inline-flex items-center transition-colors"
-                    >
-                        <PlusIcon className="w-5 h-5 mr-2" />
-                        Nuevo Préstamo
-                    </button>
                 </div>
 
-                {/* Tabla para pantallas medianas y grandes */}
                 <div className="hidden md:block overflow-x-auto bg-white rounded-lg shadow">
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50">
@@ -104,7 +115,9 @@ const Loans = () => {
                         <tbody className="bg-white divide-y divide-gray-200">
                             {currentItems?.map((prestamo) => (
                                 <tr key={prestamo._id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{prestamo.miembro.nombre}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                        {prestamo.miembro.nombre + " " + prestamo.miembro.apellidoPaterno + " " + prestamo.miembro.apellidoMaterno}
+                                    </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatCurrency(prestamo.cantidad)}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{prestamo.interes}%</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{prestamo.cantidadSemanal}</td>
@@ -131,19 +144,39 @@ const Loans = () => {
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <div className="flex justify-end space-x-2">
+                                            {prestamo.estado === "pendiente" && (
+                                                <>
+                                                    <button
+                                                        onClick={() => handleApprove(prestamo._id)}
+                                                        className="text-green-600 hover:text-green-900"
+                                                        title="Aprobar préstamo"
+                                                    >
+                                                        <CheckIcon className="h-5 w-5" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleReject(prestamo._id)}
+                                                        className="text-red-600 hover:text-red-900"
+                                                        title="Rechazar préstamo"
+                                                    >
+                                                        <XMarkIcon className="h-5 w-5" />
+                                                    </button>
+                                                </>
+                                            )}
+                                            {prestamo.estado === "aprobado" && (
+                                                <button
+                                                    onClick={() => handleOpenPaymentModal(prestamo._id)}
+                                                    className="text-blue-600 hover:text-blue-900"
+                                                    title="Registrar pago"
+                                                >
+                                                    <CurrencyDollarIcon className="h-5 w-5" />
+                                                </button>
+                                            )}
                                             <button
                                                 onClick={() => navigate(location.pathname + `?loanDetails=${prestamo._id}`)}
                                                 className="text-blue-600 hover:text-blue-900"
                                                 title="Ver detalles"
                                             >
                                                 <EyeIcon className="h-5 w-5" />
-                                            </button>
-                                            <button
-                                                onClick={() => handleDelete(prestamo._id)}
-                                                className="text-red-600 hover:text-red-900"
-                                                title="Eliminar"
-                                            >
-                                                <TrashIcon className="h-5 w-5" />
                                             </button>
                                         </div>
                                     </td>
@@ -153,25 +186,50 @@ const Loans = () => {
                     </table>
                 </div>
 
-                {/* Vista de tarjetas para dispositivos móviles */}
                 <div className="md:hidden space-y-4">
                     {currentItems?.map((prestamo) => (
                         <div key={prestamo._id} className="bg-white rounded-lg shadow p-4">
                             <div className="flex justify-between items-start">
                                 <div>
                                     <h3 className="text-lg font-semibold">Préstamo #{prestamo?._id}</h3>
-                                    <p className="text-sm text-gray-600 mt-1">Miembro: {prestamo.miembro.nombre}</p>
+                                    <p className="text-sm text-gray-600 mt-1">
+                                        Miembro: {prestamo.miembro.nombre + prestamo.miembro.apellidoPaterno + prestamo.miembro.apellidoMaterno}
+                                    </p>
                                 </div>
                                 <div className="flex space-x-2">
+                                    {prestamo.estado === "pendiente" && (
+                                        <>
+                                            <button
+                                                onClick={() => handleApprove(prestamo._id)}
+                                                className="text-green-600 hover:text-green-900"
+                                                title="Aprobar préstamo"
+                                            >
+                                                <CheckIcon className="h-5 w-5" />
+                                            </button>
+                                            <button
+                                                onClick={() => handleReject(prestamo._id)}
+                                                className="text-red-600 hover:text-red-900"
+                                                title="Rechazar préstamo"
+                                            >
+                                                <XMarkIcon className="h-5 w-5" />
+                                            </button>
+                                        </>
+                                    )}
+                                    {prestamo.estado === "aprobado" && (
+                                        <button
+                                            onClick={() => handleOpenPaymentModal(prestamo._id)}
+                                            className="text-blue-600 hover:text-blue-900"
+                                            title="Registrar pago"
+                                        >
+                                            <CurrencyDollarIcon className="h-5 w-5" />
+                                        </button>
+                                    )}
                                     <button
                                         onClick={() => navigate(location.pathname + `?loanDetails=${prestamo._id}`)}
                                         className="text-blue-600 hover:text-blue-900"
                                         title="Ver detalles"
                                     >
                                         <EyeIcon className="h-5 w-5" />
-                                    </button>
-                                    <button onClick={() => handleDelete(prestamo._id)} className="text-red-500 hover:text-red-900" title="Eliminar">
-                                        <TrashIcon className="h-5 w-5" />
                                     </button>
                                 </div>
                             </div>
@@ -240,6 +298,7 @@ const Loans = () => {
                 </div>
                 <AddLoanModal />
                 <LoanDetailModal />
+                <LoanPaymentModal />
             </div>
         );
 

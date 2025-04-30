@@ -1,13 +1,18 @@
-import { useState } from "react";
-import { Outlet, Link, useNavigate, Navigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Outlet, Link, useNavigate } from "react-router-dom";
 import { useAppStore } from "../stores/useAppStore";
-import PulseSpinner from "../components/Spinner";
 import { Toaster } from "react-hot-toast";
 
 const AppLayout = () => {
-    const { user, isAuthenticated, isLoading, logout } = useAppStore();
+    const { user, isAuthenticated, logout } = useAppStore();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!isAuthenticated) {
+            navigate("/auth/login");
+        }
+    }, []);
 
     // Función para manejar el cierre de sesión
     const handleLogout = async () => {
@@ -20,10 +25,6 @@ const AppLayout = () => {
         setIsMenuOpen(false);
     };
 
-    if (isLoading) return <PulseSpinner />;
-
-    if (!isAuthenticated) return <Navigate to={"/auth/login"} />;
-
     if (user)
         return (
             <div className="flex flex-col min-h-screen bg-gray-100">
@@ -31,7 +32,7 @@ const AppLayout = () => {
                     <div className="container mx-auto px-4">
                         <div className="flex justify-between items-center h-16">
                             <div className="flex items-center">
-                                <h1 className="text-xl font-bold">CAPIC</h1>
+                                <img className="w-24" src="/logo_transparent.png" alt="" />
                             </div>
 
                             <nav className="hidden md:flex space-x-6">
@@ -75,7 +76,7 @@ const AppLayout = () => {
                                     <Link to="/groups" className="hover:bg-green-700 px-3 py-2 rounded" onClick={closeMenu}>
                                         Grupos
                                     </Link>
-                                    <Link to="/contributiuons" className="hover:bg-green-700 px-3 py-2 rounded" onClick={closeMenu}>
+                                    <Link to="/contributions" className="hover:bg-green-700 px-3 py-2 rounded" onClick={closeMenu}>
                                         Aportaciones
                                     </Link>
                                     <Link to="/loans" className="hover:bg-green-700 px-3 py-2 rounded" onClick={closeMenu}>

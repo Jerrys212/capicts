@@ -4,6 +4,8 @@ import { UserLoginForm } from "../../interfaces";
 import { useAppStore } from "../../stores/useAppStore";
 import ErrorMessage from "../../components/FormError";
 import { useEffect } from "react";
+import toast from "react-hot-toast";
+import { isAxiosError } from "axios";
 
 const Login = () => {
     const {
@@ -24,9 +26,15 @@ const Login = () => {
     const onSubmit: SubmitHandler<UserLoginForm> = async (data) => {
         try {
             const success = await login(data);
-            if (success) navigate("/dashboard");
+            if (success) {
+                console.log(success);
+                navigate("/dashboard");
+            }
         } catch (error) {
-            console.error("Error al iniciar sesión:", error);
+            if (isAxiosError(error) && error.response) {
+                console.log(error);
+                toast.error(error.response.data.message);
+            }
         }
     };
 

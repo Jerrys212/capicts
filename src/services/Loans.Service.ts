@@ -40,9 +40,21 @@ export const createLoan = async (formData: LoanFormData) => {
     }
 };
 
-export const updateLoan = async (_id: Loan["_id"], formData: LoanFormData) => {
+export const updateLoanStatus = async (_id: Loan["_id"], estado: Loan["estado"]) => {
     try {
-        const { data } = await api.put(`/loans/${_id}`, formData);
+        const { data } = await api.put(`/loans/${_id}/status`, { estado });
+
+        return data.message;
+    } catch (error) {
+        if (isAxiosError(error) && error.response) {
+            throw error;
+        }
+    }
+};
+
+export const registerLoanPayment = async (_id: Loan["_id"], semana: number) => {
+    try {
+        const { data } = await api.post(`/loans/${_id}/week`, { semana });
 
         return data.message;
     } catch (error) {

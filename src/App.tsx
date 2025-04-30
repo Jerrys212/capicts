@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import AuthLayout from "./layouts/AuthLayout";
 import Login from "./views/auth/Login";
 import Register from "./views/auth/Register";
@@ -14,6 +14,8 @@ const App = () => {
     return (
         <BrowserRouter>
             <Routes>
+                <Route path="/" element={<Navigate to="/auth/login" replace />} />
+
                 <Route element={<AuthLayout />}>
                     <Route path="/auth/login" element={<Login />} />
                     <Route path="/auth/register" element={<Register />} />
@@ -21,11 +23,11 @@ const App = () => {
                 </Route>
 
                 <Route element={<AppLayout />}>
-                    <Route path="/dashboard" index element={<Dashboard />} />
-                    <Route path="/profile" index element={<Profile />} />
-                    <Route path="/groups" index element={<Groups />} />
-                    <Route path="/contributions" index element={<Contributions />} />
-                    <Route path="/loans" index element={<Loans />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/groups" element={<Groups />} />
+                    <Route path="/contributions" element={<Contributions />} />
+                    <Route path="/loans" element={<Loans />} />
                 </Route>
             </Routes>
         </BrowserRouter>

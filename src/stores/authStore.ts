@@ -25,31 +25,19 @@ export const createAuthStore: StateCreator<AuthStore> = (set) => ({
         return user;
     },
     login: async (formData: UserLoginForm) => {
-        try {
-            set({ isLoading: true, error: null });
-            const user = await login(formData);
-            if (user) {
-                set({
-                    user,
-                    isAuthenticated: true,
-                    isLoading: false,
-                    error: null,
-                    token: user.token,
-                });
-                return true;
-            }
+        const user = await login(formData);
+        if (user) {
             set({
+                user,
+                isAuthenticated: true,
                 isLoading: false,
-                error: "Credenciales inválidas",
+                error: null,
+                token: user.token,
             });
-            return false;
-        } catch (error) {
-            set({
-                isLoading: false,
-                error: error instanceof Error ? error.message : "Error al iniciar sesión",
-            });
-            return false;
+            return true;
         }
+
+        return false;
     },
 
     confirmToken: async (token: ConfirmToken["token"]) => {

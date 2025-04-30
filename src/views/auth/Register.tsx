@@ -6,7 +6,7 @@ import { UserRegisterForm } from "../../interfaces";
 
 const Register = () => {
     const navigate = useNavigate();
-    const { register: registerUser, isAuthenticated, isLoading, error } = useAppStore();
+    const { register: registerUser, isAuthenticated, isLoading } = useAppStore();
 
     const {
         register,
@@ -33,12 +33,6 @@ const Register = () => {
             <div className="bg-white rounded-lg shadow-lg px-5 py-6 sm:px-8 sm:py-10">
                 <h1 className="text-2xl sm:text-3xl font-bold text-center text-green-800 mb-6">Crear Cuenta</h1>
 
-                {error && (
-                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                        <p>{error}</p>
-                    </div>
-                )}
-
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-5">
                     {/* Nombre */}
                     <div>
@@ -52,7 +46,11 @@ const Register = () => {
                             className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent ${
                                 errors.nombre ? "border-red-500" : "border-gray-300"
                             }`}
-                            {...register("nombre")}
+                            {...register("nombre", {
+                                required: "El nombre es obligatorio",
+                                minLength: { value: 2, message: "El nombre debe tener al menos 2 caracteres" },
+                                maxLength: { value: 50, message: "El nombre no puede exceder los 50 caracteres" },
+                            })}
                             disabled={isLoading}
                         />
                         {errors.nombre && <p className="mt-1 text-sm text-red-600">{errors.nombre.message}</p>}
@@ -70,7 +68,11 @@ const Register = () => {
                             className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent ${
                                 errors.apellidoPaterno ? "border-red-500" : "border-gray-300"
                             }`}
-                            {...register("apellidoPaterno")}
+                            {...register("apellidoPaterno", {
+                                required: "El apellido paterno es obligatorio",
+                                minLength: { value: 2, message: "El apellido paterno debe tener al menos 2 caracteres" },
+                                maxLength: { value: 50, message: "El apellido paterno no puede exceder los 50 caracteres" },
+                            })}
                             disabled={isLoading}
                         />
                         {errors.apellidoPaterno && <p className="mt-1 text-sm text-red-600">{errors.apellidoPaterno.message}</p>}
@@ -88,7 +90,11 @@ const Register = () => {
                             className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent ${
                                 errors.apellidoMaterno ? "border-red-500" : "border-gray-300"
                             }`}
-                            {...register("apellidoMaterno")}
+                            {...register("apellidoMaterno", {
+                                required: "El apellido materno es obligatorio",
+                                minLength: { value: 2, message: "El apellido materno debe tener al menos 2 caracteres" },
+                                maxLength: { value: 50, message: "El apellido materno no puede exceder los 50 caracteres" },
+                            })}
                             disabled={isLoading}
                         />
                         {errors.apellidoMaterno && <p className="mt-1 text-sm text-red-600">{errors.apellidoMaterno.message}</p>}
@@ -106,7 +112,15 @@ const Register = () => {
                             className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent ${
                                 errors.curp ? "border-red-500" : "border-gray-300"
                             }`}
-                            {...register("curp")}
+                            {...register("curp", {
+                                required: "El CURP es obligatorio",
+                                pattern: {
+                                    value: /^[A-Z]{4}\d{6}[HM][A-Z]{5}[0-9A-Z]\d$/,
+                                    message: "Formato de CURP inválido",
+                                },
+                                maxLength: { value: 18, message: "El CURP debe tener 18 caracteres" },
+                                minLength: { value: 18, message: "El CURP debe tener 18 caracteres" },
+                            })}
                             disabled={isLoading}
                         />
                         {errors.curp && <p className="mt-1 text-sm text-red-600">{errors.curp.message}</p>}
@@ -124,7 +138,13 @@ const Register = () => {
                             className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent ${
                                 errors.email ? "border-red-500" : "border-gray-300"
                             }`}
-                            {...register("email")}
+                            {...register("email", {
+                                required: "El email es obligatorio",
+                                pattern: {
+                                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                                    message: "Formato de email inválido",
+                                },
+                            })}
                             disabled={isLoading}
                         />
                         {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
@@ -142,7 +162,15 @@ const Register = () => {
                             className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent ${
                                 errors.password ? "border-red-500" : "border-gray-300"
                             }`}
-                            {...register("password")}
+                            {...register("password", {
+                                required: "La contraseña es obligatoria",
+                                minLength: { value: 8, message: "La contraseña debe tener al menos 8 caracteres" },
+                                pattern: {
+                                    value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                                    message:
+                                        "La contraseña debe contener al menos una letra mayúscula, una minúscula, un número y un carácter especial",
+                                },
+                            })}
                             disabled={isLoading}
                         />
                         {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>}
@@ -153,14 +181,14 @@ const Register = () => {
                         className="w-full bg-green-700 hover:bg-green-800 text-white font-bold py-2.5 sm:py-3 px-4 rounded-md transition-colors mt-2 disabled:opacity-70 disabled:cursor-not-allowed"
                         disabled={isLoading}
                     >
-                        {isLoading ? "Creando cuenta..." : "Crear Cuenta"}
+                        Crear Cuenta
                     </button>
                 </form>
 
                 <div className="mt-6 text-center">
                     <p className="text-sm text-gray-600">
                         ¿Ya tienes una cuenta?{" "}
-                        <Link to="/login" className="text-green-700 hover:text-green-800 font-medium">
+                        <Link to="/auth/login" className="text-green-700 hover:text-green-800 font-medium">
                             Iniciar Sesión
                         </Link>
                     </p>

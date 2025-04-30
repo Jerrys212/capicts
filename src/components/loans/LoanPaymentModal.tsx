@@ -1,17 +1,19 @@
-import { Fragment, useEffect } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from "@headlessui/react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { XMarkIcon, UserIcon, CalendarIcon, CurrencyDollarIcon, CheckCircleIcon } from "@heroicons/react/24/outline";
+import { XMarkIcon, UserIcon, CurrencyDollarIcon, CalendarIcon, CheckIcon, ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import { useAppStore } from "../../stores/useAppStore";
 import PulseSpinner from "../Spinner";
 import { formatDate } from "../../helpers";
+import toast from "react-hot-toast";
 
-export default function LoanDetailModal() {
+export default function LoanPaymentModal() {
     const location = useLocation();
     const navigate = useNavigate();
     const searchParams = new URLSearchParams(location.search);
-    const loanId = searchParams.get("loanDetails");
-    const { loan, getLoan, isLoading } = useAppStore();
+    const loanId = searchParams.get("paymentLoan");
+    const { loan, getLoan, isLoading, registerLoanPayment } = useAppStore();
+    const [savingPayment, setSavingPayment] = useState<boolean>(false);
 
     // Verificar si el modal debe mostrarse
     const show = Boolean(loanId);
@@ -23,7 +25,7 @@ export default function LoanDetailModal() {
                 try {
                     await getLoan(loanId);
                 } catch (error) {
-                    console.error("Error al cargar los detalles del préstamo:", error);
+                    toast.error("Hubo un error al obtener el prestamo");
                 }
             }
         };
@@ -39,7 +41,7 @@ export default function LoanDetailModal() {
 
     // Formatear número a moneda
     const formatCurrency = (amount: number): string => {
-        return `${amount.toLocaleString()} MXN`;
+        return `$${amount.toLocaleString()} MXN`;
     };
 
     // Estado del préstamo en español
@@ -62,6 +64,20 @@ export default function LoanDetailModal() {
             completado: "blue",
         };
         return colorMap[status] || "gray";
+    };
+
+    // Manejar cambio en el checkbox de pago
+    const handlePaymentChange = async (semana: number) => {
+        if (!loanId) return;
+
+        setSavingPayment(true);
+
+        try {
+            // Llamar al API para actualizar el estado del pago
+            await registerLoanPayment(loanId, semana);
+        } catch (error) {
+            toast.error("Error al actualizar el pago:", error);
+        }
     };
 
     return (
@@ -94,7 +110,7 @@ export default function LoanDetailModal() {
                                 {/* Encabezado del modal */}
                                 <div className="flex justify-between items-center border-b border-gray-200 px-6 py-4">
                                     <DialogTitle as="h3" className="text-2xl font-bold text-gray-800">
-                                        Detalles del Préstamo
+                                        Gestión de Pagos
                                     </DialogTitle>
                                     <button type="button" className="text-gray-400 hover:text-gray-500" onClick={handleClose}>
                                         <span className="sr-only">Cerrar</span>
@@ -102,7 +118,6 @@ export default function LoanDetailModal() {
                                     </button>
                                 </div>
 
-                                {/* Contenido del modal */}
                                 <div className="px-6 py-4 overflow-y-auto flex-grow">
                                     {isLoading ? (
                                         <div className="flex justify-center items-center py-8">
@@ -110,7 +125,6 @@ export default function LoanDetailModal() {
                                         </div>
                                     ) : loan ? (
                                         <div className="space-y-6">
-                                            {/* Información principal */}
                                             <div
                                                 className={`bg-${getStatusColor(loan.estado)}-50 border border-${getStatusColor(
                                                     loan.estado
@@ -127,14 +141,7 @@ export default function LoanDetailModal() {
                                                     </span>
                                                 </div>
 
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    <div className="flex items-center">
-                                                        <CurrencyDollarIcon className={`h-5 w-5 text-${getStatusColor(loan.estado)}-700 mr-2`} />
-                                                        <div>
-                                                            <p className="text-sm font-medium text-gray-600">Cantidad solicitada</p>
-                                                            <p className="text-lg font-bold text-gray-800">{formatCurrency(loan.cantidad)}</p>
-                                                        </div>
-                                                    </div>
+                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                                     <div className="flex items-center">
                                                         <CurrencyDollarIcon className={`h-5 w-5 text-${getStatusColor(loan.estado)}-700 mr-2`} />
                                                         <div>
@@ -154,13 +161,6 @@ export default function LoanDetailModal() {
                                                         <div>
                                                             <p className="text-sm font-medium text-gray-600">Pago semanal</p>
                                                             <p className="text-lg font-bold text-gray-800">{formatCurrency(loan.cantidadSemanal)}</p>
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex items-center col-span-1 md:col-span-2">
-                                                        <CurrencyDollarIcon className={`h-5 w-5 text-${getStatusColor(loan.estado)}-700 mr-2`} />
-                                                        <div>
-                                                            <p className="text-sm font-medium text-gray-600">Tasa de interés</p>
-                                                            <p className="text-lg font-bold text-gray-800">{loan.interes}%</p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -201,16 +201,6 @@ export default function LoanDetailModal() {
                                                                 {formatCurrency(loan.resumen.montoRestante)}
                                                             </p>
                                                         </div>
-                                                        <div className="flex flex-col">
-                                                            <p className="text-sm font-medium text-gray-600">Semanas restantes</p>
-                                                            <p className="text-lg font-bold text-gray-800">
-                                                                {loan.resumen.semanasRestantes} de {loan.semanas}
-                                                            </p>
-                                                        </div>
-                                                        <div className="flex flex-col">
-                                                            <p className="text-sm font-medium text-gray-600">Progreso del pago</p>
-                                                            <p className="text-lg font-bold text-gray-800">{loan.resumen.progresoPago}%</p>
-                                                        </div>
                                                     </div>
 
                                                     {/* Barra de progreso */}
@@ -225,86 +215,48 @@ export default function LoanDetailModal() {
                                                 </div>
                                             )}
 
-                                            {/* Lista de pagos */}
+                                            {/* Formulario de pagos con checkboxes */}
                                             {loan.pagos && loan.pagos.length > 0 && (
                                                 <div>
-                                                    <h5 className="text-md font-semibold text-gray-700 mb-3">
-                                                        Pagos programados ({loan.pagos.length})
-                                                    </h5>
-                                                    <div className="border border-gray-200 rounded-lg overflow-hidden">
-                                                        <div className="overflow-x-auto">
-                                                            <table className="min-w-full divide-y divide-gray-200">
-                                                                <thead className="bg-gray-50">
-                                                                    <tr>
-                                                                        <th
-                                                                            scope="col"
-                                                                            className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                                                        >
-                                                                            Semana
-                                                                        </th>
-                                                                        <th
-                                                                            scope="col"
-                                                                            className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                                                        >
-                                                                            Cantidad
-                                                                        </th>
-                                                                        <th
-                                                                            scope="col"
-                                                                            className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                                                        >
-                                                                            Estado
-                                                                        </th>
-                                                                        <th
-                                                                            scope="col"
-                                                                            className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                                                        >
-                                                                            Fecha de pago
-                                                                        </th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody className="bg-white divide-y divide-gray-200">
-                                                                    {loan.pagos.map((pago) => (
-                                                                        <tr key={pago.semana} className="hover:bg-gray-50">
-                                                                            <td className="px-4 py-3 whitespace-nowrap">
-                                                                                <div className="text-sm font-medium text-gray-900">
-                                                                                    Semana {pago.semana}
-                                                                                </div>
-                                                                            </td>
-                                                                            <td className="px-4 py-3 whitespace-nowrap">
-                                                                                <div className="text-sm text-gray-900">
-                                                                                    {formatCurrency(pago.cantidad)}
-                                                                                </div>
-                                                                            </td>
-                                                                            <td className="px-4 py-3 whitespace-nowrap">
-                                                                                {pago.pagado ? (
-                                                                                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                                                        <CheckCircleIcon className="h-4 w-4 mr-1" /> Pagado
-                                                                                    </span>
-                                                                                ) : (
-                                                                                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                                                                                        Pendiente
-                                                                                    </span>
-                                                                                )}
-                                                                            </td>
-                                                                            <td className="px-4 py-3 whitespace-nowrap">
-                                                                                <div className="text-sm text-gray-600">
-                                                                                    {pago.fechaPago ? formatDate(pago.fechaPago) : "-"}
-                                                                                </div>
-                                                                            </td>
-                                                                        </tr>
-                                                                    ))}
-                                                                </tbody>
-                                                            </table>
+                                                    <h5 className="text-md font-semibold text-gray-700 mb-3">Registro de pagos</h5>
+                                                    <div className="border border-gray-200 rounded-lg">
+                                                        <div className="divide-y divide-gray-200">
+                                                            {loan.pagos.map((pago) => (
+                                                                <div
+                                                                    key={pago.semana}
+                                                                    className="flex items-center justify-between py-3 px-4 hover:bg-gray-50"
+                                                                >
+                                                                    <div>
+                                                                        <p className="text-sm font-medium text-gray-900">Semana {pago.semana}</p>
+                                                                        <p className="text-sm text-gray-600">{formatCurrency(pago.cantidad)}</p>
+                                                                    </div>
+
+                                                                    <div className="flex items-center">
+                                                                        {pago.fechaPago && (
+                                                                            <span className="text-xs text-gray-500 mr-4">
+                                                                                Pagado: {formatDate(pago.fechaPago)}
+                                                                            </span>
+                                                                        )}
+
+                                                                        <label className="inline-flex items-center">
+                                                                            <input
+                                                                                type="checkbox"
+                                                                                className="form-checkbox h-5 w-5 text-green-600 rounded border-gray-300 focus:ring-green-500"
+                                                                                checked={pago.pagado || false}
+                                                                                onChange={(e) => handlePaymentChange(pago.semana, e.target.checked)}
+                                                                                disabled={savingPayment}
+                                                                            />
+                                                                            <span className="ml-2 text-gray-700">
+                                                                                {pago.pagado ? "Pagado" : "Marcar como pagado"}
+                                                                            </span>
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
                                                         </div>
                                                     </div>
                                                 </div>
                                             )}
-
-                                            {/* Fechas */}
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-500 mt-4">
-                                                <p>Creado: {formatDate(loan.createdAt)}</p>
-                                                <p>Última actualización: {formatDate(loan.updatedAt)}</p>
-                                            </div>
                                         </div>
                                     ) : (
                                         <div className="text-center py-8 text-gray-500">No se pudo cargar la información del préstamo.</div>

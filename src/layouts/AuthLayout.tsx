@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom";
 import Logo from "../components/Logo";
+import { Toaster } from "react-hot-toast";
 
 const AuthLayout = () => {
     return (
@@ -10,6 +11,8 @@ const AuthLayout = () => {
                     <Outlet />
                 </div>
             </div>
+
+            <Toaster position="top-right" />
         </div>
     );
 };

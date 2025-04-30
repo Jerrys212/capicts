@@ -1,14 +1,15 @@
 import { StateCreator } from "zustand";
-import { createLoan, getLoan, getLoans, deleteLoan } from "../services/Loans.Service.ts";
+import { createLoan, getLoan, getLoans, deleteLoan, updateLoanStatus, registerLoanPayment } from "../services/Loans.Service.ts";
 import { Loan, LoanFormData } from "../interfaces";
 
 export interface LoansStore {
     loans: Loan[];
     loan: Loan;
     createLoan: (formData: LoanFormData) => Promise<string>;
+    updateLoanStatus: (_id: Loan["_id"], status: Loan["estado"]) => Promise<string>;
     getLoans: () => Promise<void>;
     getLoan: (_id: Loan["_id"]) => Promise<void>;
-    deleteLoan: (_id: Loan["_id"]) => Promise<void>;
+    registerLoanPayment: (_id: Loan["_id"], semana: number) => Promise<string>;
 }
 
 export const createLoanStore: StateCreator<LoansStore> = (set) => ({
@@ -37,12 +38,18 @@ export const createLoanStore: StateCreator<LoansStore> = (set) => ({
             return loan;
         }
     },
-    deleteLoan: async (_id: Loan["_id"]) => {
-        await deleteLoan(_id);
-        // Opcionalmente podrías actualizar el estado después de eliminar
-        // const loans = await getLoans();
-        // if (loans) {
-        //     set({ loans });
-        // }
+    updateLoanStatus: async (_id: Loan["_id"], status: Loan["estado"]) => {
+        const loan = await updateLoanStatus(_id, status);
+
+        if (loan) {
+            return loan;
+        }
+    },
+    registerLoanPayment: async (_id: Loan["_id"], semana: number) => {
+        const loan = await registerLoanPayment(_id, semana);
+
+        if (loan) {
+            return loan;
+        }
     },
 });
