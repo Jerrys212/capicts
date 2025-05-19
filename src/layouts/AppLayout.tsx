@@ -31,7 +31,7 @@ const AppLayout = () => {
                 <header className="bg-green-800 text-white shadow-md">
                     <div className="container mx-auto px-4">
                         <div className="flex justify-between items-center h-16">
-                            <div className="flex items-center">
+                            <div className="flex items-center cursor-pointer" onClick={() => navigate("/dashboard")}>
                                 <img className="w-24" src="/logo_transparent.png" alt="" />
                             </div>
 

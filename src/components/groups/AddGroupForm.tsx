@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { GroupFormData } from "../../interfaces";
 import PulseSpinner from "../Spinner";
 import { useAppStore } from "../../stores/useAppStore";
+import { isAxiosError } from "axios";
 
 const AddGroupForm = () => {
     const navigate = useNavigate();
@@ -32,7 +33,9 @@ const AddGroupForm = () => {
                 navigate(location.pathname, { replace: true });
             }
         } catch (error) {
-            console.error("Error al crear el grupo:", error);
+            if (isAxiosError(error) && error.response) {
+                toast.error(error.response.data.message);
+            }
         }
     };
 

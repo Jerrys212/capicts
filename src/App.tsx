@@ -9,6 +9,7 @@ import Contributions from "./views/admin/Contributions";
 import Groups from "./views/admin/Groups";
 import ConfirmToken from "./views/auth/ConfirmToken";
 import Loans from "./views/admin/Loans";
+import ReportsDashboard from "./views/admin/ReportsDashboard";
 
 const App = () => {
     return (
@@ -28,6 +29,7 @@ const App = () => {
                     <Route path="/groups" element={<Groups />} />
                     <Route path="/contributions" element={<Contributions />} />
                     <Route path="/loans" element={<Loans />} />
+                    <Route path="/reports" element={<ReportsDashboard />} />
                 </Route>
             </Routes>
         </BrowserRouter>

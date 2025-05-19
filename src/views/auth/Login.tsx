@@ -27,12 +27,10 @@ const Login = () => {
         try {
             const success = await login(data);
             if (success) {
-                console.log(success);
                 navigate("/dashboard");
             }
         } catch (error) {
             if (isAxiosError(error) && error.response) {
-                console.log(error);
                 toast.error(error.response.data.message);
             }
         }

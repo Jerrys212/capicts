@@ -217,7 +217,7 @@ const Loans = () => {
                                     )}
                                     {prestamo.estado === "aprobado" && (
                                         <button
-                                            onClick={() => handleOpenPaymentModal(prestamo._id)}
+                                            onClick={() => navigate(location.pathname + `?paymentModal=${prestamo._id}`)}
                                             className="text-blue-600 hover:text-blue-900"
                                             title="Registrar pago"
                                         >

@@ -1,6 +1,6 @@
 import { StateCreator } from "zustand";
 import { ConfirmToken, User, UserLoginForm, UserRegisterForm } from "../interfaces";
-import { login, register } from "../services/Auth.service";
+import { login, register, updatePassword } from "../services/Auth.service";
 
 export interface AuthStore {
     user: User | null;
@@ -11,6 +11,7 @@ export interface AuthStore {
     register: (formData: UserRegisterForm) => Promise<boolean>;
     confirmToken: (token: ConfirmToken["token"]) => Promise<void>;
     login: (formData: UserLoginForm) => Promise<boolean>;
+    updatePassword: (token: ConfirmToken["token"]) => Promise<string>;
     logout: () => void;
 }
 
@@ -39,7 +40,11 @@ export const createAuthStore: StateCreator<AuthStore> = (set) => ({
 
         return false;
     },
+    updatePassword: async (newPassword: UserLoginForm["password"]) => {
+        const success = await updatePassword(newPassword);
 
+        if (success) return success;
+    },
     confirmToken: async (token: ConfirmToken["token"]) => {
         console.log(token);
     },

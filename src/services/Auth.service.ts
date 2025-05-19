@@ -29,3 +29,15 @@ export const login = async (formData: UserLoginForm) => {
         }
     }
 };
+
+export const updatePassword = async (newPassword: UserLoginForm["password"]) => {
+    try {
+        const { data } = await api.post(`/auth/update-password`, { newPassword });
+
+        return data.message;
+    } catch (error) {
+        if (isAxiosError(error) && error.response) {
+            throw error;
+        }
+    }
+};

@@ -1,17 +1,18 @@
 import { Fragment, useEffect, useState } from "react";
 import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from "@headlessui/react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { XMarkIcon, UserIcon, CurrencyDollarIcon, CalendarIcon, CheckIcon, ExclamationCircleIcon } from "@heroicons/react/24/outline";
+import { XMarkIcon, UserIcon, CurrencyDollarIcon, CalendarIcon } from "@heroicons/react/24/outline";
 import { useAppStore } from "../../stores/useAppStore";
 import PulseSpinner from "../Spinner";
 import { formatDate } from "../../helpers";
 import toast from "react-hot-toast";
+import { isAxiosError } from "axios";
 
 export default function LoanPaymentModal() {
     const location = useLocation();
     const navigate = useNavigate();
     const searchParams = new URLSearchParams(location.search);
-    const loanId = searchParams.get("paymentLoan");
+    const loanId = searchParams.get("paymentModal");
     const { loan, getLoan, isLoading, registerLoanPayment } = useAppStore();
     const [savingPayment, setSavingPayment] = useState<boolean>(false);
 
@@ -76,7 +77,9 @@ export default function LoanPaymentModal() {
             // Llamar al API para actualizar el estado del pago
             await registerLoanPayment(loanId, semana);
         } catch (error) {
-            toast.error("Error al actualizar el pago:", error);
+            if (isAxiosError(error) && error.response) {
+                toast.error(error.response.data.message);
+            }
         }
     };
 
@@ -243,7 +246,7 @@ export default function LoanPaymentModal() {
                                                                                 type="checkbox"
                                                                                 className="form-checkbox h-5 w-5 text-green-600 rounded border-gray-300 focus:ring-green-500"
                                                                                 checked={pago.pagado || false}
-                                                                                onChange={(e) => handlePaymentChange(pago.semana, e.target.checked)}
+                                                                                onChange={() => handlePaymentChange(pago.semana)}
                                                                                 disabled={savingPayment}
                                                                             />
                                                                             <span className="ml-2 text-gray-700">

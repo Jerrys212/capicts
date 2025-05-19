@@ -23,7 +23,7 @@ export const userSchema = authSchema
         email: true,
         token: true,
     })
-    .extend({ _id: z.string(), role: z.string() });
+    .extend({ _id: z.string(), role: z.string(), createdAt: z.string(), updatedAt: z.string() });
 
 export interface User extends z.infer<typeof userSchema> {}
 export interface Auth extends z.infer<typeof authSchema> {}

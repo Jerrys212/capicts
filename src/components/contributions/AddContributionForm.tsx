@@ -31,11 +31,11 @@ const AddContributionForm = () => {
 
     useEffect(() => {
         resetForm();
+
         const loadData = async () => {
             try {
                 await getGroups();
             } catch (error) {
-                console.error("Error al cargar datos:", error);
                 toast.error("Error al cargar los datos necesarios");
             }
         };
@@ -56,7 +56,6 @@ const AddContributionForm = () => {
                             toast.error("No hay Miembros en este Grupo");
                         }
                     } catch (error) {
-                        console.error("Error al cargar datos:", error);
                         toast.error("Error al cargar los datos necesarios");
                     }
                 };

@@ -1,4 +1,4 @@
-import { BanknotesIcon, CreditCardIcon, DocumentChartBarIcon, UserGroupIcon, UserIcon } from "@heroicons/react/20/solid";
+import { BanknotesIcon, CreditCardIcon, CurrencyDollarIcon, DocumentChartBarIcon, UserGroupIcon, UserIcon } from "@heroicons/react/20/solid";
 import DashboardCard from "../../components/DashboardCard";
 import { ReactNode } from "react";
 
@@ -74,20 +74,7 @@ const Dashboard = () => {
                             <span className="text-2xl font-bold text-gray-800">$45,250.00</span>
                         </div>
                         <div className="h-16 w-16 bg-green-100 rounded-full flex items-center justify-center">
-                            <svg
-                                className="w-8 h-8 text-green-600"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                />
-                            </svg>
+                            <CurrencyDollarIcon className="w-8 h-8" />
                         </div>
                     </div>
                 </div>
@@ -100,20 +87,7 @@ const Dashboard = () => {
                             <span className="text-2xl font-bold text-gray-800">$12,800.00</span>
                         </div>
                         <div className="h-16 w-16 bg-blue-100 rounded-full flex items-center justify-center">
-                            <svg
-                                className="w-8 h-8 text-blue-600"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
-                                />
-                            </svg>
+                            <CreditCardIcon className="w-7 h-8" />
                         </div>
                     </div>
                 </div>

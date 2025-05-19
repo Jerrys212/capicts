@@ -1,5 +1,5 @@
 import { StateCreator } from "zustand";
-import { createLoan, getLoan, getLoans, deleteLoan, updateLoanStatus, registerLoanPayment } from "../services/Loans.Service.ts";
+import { createLoan, getLoan, getLoans, updateLoanStatus, registerLoanPayment } from "../services/Loans.Service.ts";
 import { Loan, LoanFormData } from "../interfaces";
 
 export interface LoansStore {

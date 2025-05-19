@@ -63,15 +63,3 @@ export const registerLoanPayment = async (_id: Loan["_id"], semana: number) => {
         }
     }
 };
-
-export const deleteLoan = async (_id: Loan["_id"]) => {
-    try {
-        const { data } = await api.delete(`/loans/${_id}`);
-
-        return data.message;
-    } catch (error) {
-        if (isAxiosError(error) && error.response) {
-            throw error;
-        }
-    }
-};
